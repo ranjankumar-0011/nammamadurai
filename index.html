@@ -687,6 +687,47 @@ tbody tr:last-child td{border-bottom:none}
 .text-green{color:var(--g700)}.text-red{color:var(--red)}.text-amber{color:#d97706}
 .truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mono{font-family:monospace}
+
+/* ===== MOBILE RESPONSIVE FIXES ===== */
+body{ overflow-x:hidden; }
+
+img{
+  max-width:100%;
+  height:auto;
+}
+
+@media (max-width: 768px){
+
+  .app{
+    flex-direction: column !important;
+  }
+
+  .sidebar{
+    width:100% !important;
+    min-height:auto !important;
+    position:relative !important;
+    border-right:none !important;
+    border-bottom:1px solid #e2e8f0 !important;
+  }
+
+  .main-content{
+    width:100% !important;
+  }
+
+  .cards,
+  .grid{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:16px !important;
+  }
+
+  .container{
+    width:95% !important;
+    margin:auto !important;
+  }
+
+}
+
 </style>
 </head>
 <body>
