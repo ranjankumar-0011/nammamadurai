@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Madurai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g50:#f0fdf4;--g100:#dcfce7;--g200:#bbf7d0;--g300:#86efac;
+  --g400:#4ade80;--g500:#22c55e;--g600:#16a34a;--g700:#15803d;
+  --g800:#166534;--g900:#14532d;
+  --slate50:#f8fafc;--slate100:#f1f5f9;--slate200:#e2e8f0;
+  --slate300:#cbd5e1;--slate400:#94a3b8;--slate500:#64748b;
+  --slate600:#475569;--slate700:#334155;--slate800:#1e293b;--slate900:#0f172a;
+  --amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;
+  --orange:#f97316;
+  --white:#ffffff;
+  --radius-sm:6px;--radius:10px;--radius-lg:16px;--radius-xl:24px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,.05);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+  --shadow-md:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+  --shadow-lg:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);
+  --font:'Plus Jakarta Sans',sans-serif;
+  --font-ta:'Noto Sans Tamil','Plus Jakarta Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--slate50);color:var(--slate800);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ─── LOADER ──────────────────────────────────── */
+#loader{
+  position:fixed;inset:0;
+  background:var(--white);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;transition:opacity .5s,visibility .5s;
+}
+#loader.out{opacity:0;visibility:hidden}
+.loader-logo{
+  width:64px;height:64px;
+  background:linear-gradient(135deg,var(--g500),var(--g700));
+  border-radius:20px;display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin-bottom:20px;
+  animation:pop .6s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 12px 40px rgba(22,163,74,.3);
+}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.loader-spin{
+  width:40px;height:40px;border:3px solid var(--slate200);
+  border-top-color:var(--g500);border-radius:50%;
+  animation:spin .8s linear infinite;margin-top:20px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-brand{font-size:1.4rem;font-weight:800;color:var(--slate800)}
+.loader-sub{font-size:.85rem;color:var(--slate400);margin-top:4px;font-family:var(--font-ta)}
+
+/* ─── LAYOUT ──────────────────────────────────── */
+.app{display:flex;min-height:100vh}
+
+/* ─── SIDEBAR ──────────────────────────────────── */
+.sidebar{
+  width:256px;min-height:100vh;
+  background:var(--white);
+  border-right:1px solid var(--slate200);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  flex-shrink:0;
+}
+.sidebar-top{
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--slate100);
+}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.brand-icon{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--g500),var(--g700));
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;box-shadow:0 4px 12px rgba(22,163,74,.25);
+  flex-shrink:0;
+}
+.brand-name{font-size:1rem;font-weight:800;color:var(--slate900);line-height:1.1}
+.brand-sub{font-size:.65rem;color:var(--g600);font-weight:600;font-family:var(--font-ta);margin-top:1px}
+.lang-row{
+  display:flex;background:var(--slate100);border-radius:8px;padding:3px;gap:2px;
+}
+.lang-opt{
+  flex:1;padding:5px 0;border-radius:6px;
+  font-size:.72rem;font-weight:700;cursor:pointer;
+  border:none;background:transparent;color:var(--slate500);
+  transition:all .18s;text-align:center;
+}
+.lang-opt.on{background:var(--white);color:var(--g700);box-shadow:var(--shadow-xs)}
+
+.sidebar-body{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-section{margin-bottom:20px}
+.nav-section-label{
+  font-size:.65rem;font-weight:700;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--slate400);
+  padding:0 6px;margin-bottom:6px;
+}
+.nav-link{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:var(--radius);
+  cursor:pointer;transition:all .18s;
+  color:var(--slate600);font-size:.83rem;font-weight:500;
+  position:relative;margin-bottom:2px;
+  border:1px solid transparent;
+  text-decoration:none;
+}
+.nav-link:hover{background:var(--slate50);color:var(--slate800)}
+.nav-link.active{
+  background:var(--g50);color:var(--g700);
+  border-color:var(--g200);font-weight:600;
+}
+.nav-link.active .nav-icon-wrap{background:var(--g100);color:var(--g700)}
+.nav-icon-wrap{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--slate100);color:var(--slate500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;transition:all .18s;
+}
+.nav-label{flex:1}
+.nav-chip{
+  font-size:.6rem;font-weight:700;padding:2px 7px;
+  border-radius:20px;
+}
+.chip-red{background:#fef2f2;color:var(--red)}
+.chip-green{background:var(--g50);color:var(--g700)}
+.chip-blue{background:#eff6ff;color:var(--blue)}
+.chip-new{background:linear-gradient(135deg,var(--g500),var(--g600));color:white}
+
+.sidebar-bottom{
+  padding:12px;border-top:1px solid var(--slate100);
+}
+.clean-index{
+  background:linear-gradient(135deg,var(--g600),var(--g800));
+  border-radius:var(--radius-lg);padding:14px;color:white;
+}
+.ci-label{font-size:.62rem;font-weight:700;letter-spacing:.8px;opacity:.7;text-transform:uppercase}
+.ci-score{font-size:2rem;font-weight:800;line-height:1;margin:4px 0}
+.ci-track{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;margin:6px 0 4px}
+.ci-fill{height:100%;background:var(--g300);border-radius:3px;width:67%;transition:width 1s ease}
+.ci-note{font-size:.65rem;opacity:.6}
+
+/* ─── MAIN ─────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ─── TOPBAR ───────────────────────────────────── */
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--slate200);
+  height:60px;display:flex;align-items:center;
+  padding:0 24px;gap:12px;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--slate800);flex:1}
+.topbar-title span{font-size:.75rem;font-weight:500;color:var(--slate400);margin-left:8px;font-family:var(--font-ta)}
+.live-badge{
+  display:flex;align-items:center;gap:5px;
+  background:var(--g50);border:1px solid var(--g200);
+  border-radius:20px;padding:4px 10px;
+  font-size:.68rem;font-weight:700;color:var(--g700);
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--g500);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.time-badge{font-size:.72rem;color:var(--slate400);font-weight:500;min-width:65px;text-align:right}
+.topbar-notif{
+  width:36px;height:36px;border-radius:var(--radius);
+  background:var(--slate50);border:1px solid var(--slate200);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;font-size:1rem;
+  transition:all .18s;
+}
+.topbar-notif:hover{background:var(--slate100)}
+.notif-badge{
+  position:absolute;top:6px;right:6px;
+  width:8px;height:8px;background:var(--red);
+  border-radius:50%;border:2px solid white;
+}
+.user-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 10px 5px 5px;
+  border-radius:24px;border:1px solid var(--slate200);
+  cursor:pointer;transition:all .18s;background:white;
+}
+.user-pill:hover{border-color:var(--slate300)}
+.user-av{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--g500),var(--g700));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:white;flex-shrink:0;
+}
+.user-info{line-height:1.2}
+.user-name{font-size:.75rem;font-weight:700;color:var(--slate800)}
+.user-role{font-size:.62rem;color:var(--slate400)}
+
+/* ─── CONTENT AREA ─────────────────────────────── */
+.content{flex:1;padding:24px;overflow-y:auto;max-width:1200px;width:100%}
+
+/* ─── SCREENS ──────────────────────────────────── */
+.screen{display:none}
+.screen.on{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── PAGE HEAD ─────────────────────────────────── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.ph-left{}
+.ph-title{font-size:1.5rem;font-weight:800;color:var(--slate900);line-height:1.2}
+.ph-ta{display:block;font-size:.78rem;font-weight:500;color:var(--slate400);font-family:var(--font-ta);margin-top:3px}
+.ph-sub{font-size:.82rem;color:var(--slate400);margin-top:4px}
+.ph-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+/* ─── BUTTONS ──────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;border-radius:var(--radius);
+  font-size:.82rem;font-weight:600;cursor:pointer;
+  border:none;font-family:var(--font);
+  transition:all .18s;white-space:nowrap;
+}
+.btn-primary{
+  background:var(--g600);color:white;
+  box-shadow:0 1px 2px rgba(0,0,0,.1);
+}
+.btn-primary:hover{background:var(--g700);box-shadow:var(--shadow-sm)}
+.btn-outline{
+  background:white;color:var(--slate700);
+  border:1px solid var(--slate200);
+}
+.btn-outline:hover{border-color:var(--slate300);background:var(--slate50)}
+.btn-ghost{background:transparent;color:var(--slate600);padding:8px}
+.btn-ghost:hover{background:var(--slate100)}
+.btn-sm{padding:6px 12px;font-size:.75rem}
+.btn-danger{background:#fef2f2;color:var(--red);border:1px solid #fecaca}
+.btn-danger:hover{background:#fee2e2}
+
+/* ─── GRID HELPERS ──────────────────────────────── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+
+/* ─── CARDS ─────────────────────────────────────── */
+.card{
+  background:var(--white);border-radius:var(--radius-lg);
+  border:1px solid var(--slate200);
+  box-shadow:var(--shadow-xs);
+  transition:box-shadow .2s,transform .2s;
+}
+.card:hover{box-shadow:var(--shadow-sm)}
+.card-pad{padding:20px}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;
+  border-bottom:1px solid var(--slate100);
+}
+.card-title{font-size:.9rem;font-weight:700;color:var(--slate800)}
+.card-title-ta{font-size:.68rem;color:var(--slate400);font-family:var(--font-ta);margin-left:6px;font-weight:400}
+.card-body{padding:20px}
+
+/* ─── STAT CARD ─────────────────────────────────── */
+.stat-card{
+  background:white;border-radius:var(--radius-lg);
+  border:1px solid var(--slate200);padding:20px;
+  position:relative;overflow:hidden;
+  transition:all .2s;cursor:default;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.stat-icon-box{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+.si-green{background:var(--g100);color:var(--g700)}
+.si-amber{background:#fffbeb;color:#d97706}
+.si-red{background:#fef2f2;color:var(--red)}
+.si-blue{background:#eff6ff;color:var(--blue)}
+.si-purple{background:#f5f3ff;color:var(--purple)}
+.stat-badge{font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:12px}
+.sb-up{background:var(--g50);color:var(--g700)}
+.sb-down{background:#fef2f2;color:var(--red)}
+.stat-value{font-size:1.8rem;font-weight:800;color:var(--slate900);line-height:1}
+.stat-label{font-size:.75rem;color:var(--slate500);margin-top:4px;font-weight:500}
+.stat-label-ta{font-family:var(--font-ta);font-size:.65rem;color:var(--slate400);display:block;margin-top:1px}
+
+/* ─── BADGE / STATUS ─────────────────────────────── */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:20px;
+  font-size:.68rem;font-weight:600;
+}
+.b-green{background:var(--g50);color:var(--g700);border:1px solid var(--g200)}
+.b-amber{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.b-red{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.b-blue{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.b-slate{background:var(--slate100);color:var(--slate600);border:1px solid var(--slate200)}
+.b-purple{background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe}
+.b-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.b-live{background:var(--g600);color:white;border:none}
+
+/* ─── PROGRESS ──────────────────────────────────── */
+.progress{height:6px;background:var(--slate100);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.pf-green{background:linear-gradient(90deg,var(--g400),var(--g600))}
+.pf-amber{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.pf-red{background:linear-gradient(90deg,#f87171,var(--red))}
+.pf-blue{background:linear-gradient(90deg,#60a5fa,var(--blue))}
+
+/* ─── FORMS ─────────────────────────────────────── */
+.form-row{margin-bottom:16px}
+.label{
+  display:block;font-size:.78rem;font-weight:600;
+  color:var(--slate700);margin-bottom:6px;
+}
+.label-ta{font-family:var(--font-ta);font-size:.65rem;color:var(--slate400);margin-left:5px;font-weight:400}
+.input,.select,.textarea{
+  width:100%;padding:10px 12px;
+  border:1.5px solid var(--slate200);border-radius:var(--radius);
+  font-size:.85rem;font-family:var(--font);color:var(--slate800);
+  background:var(--white);outline:none;
+  transition:border-color .18s,box-shadow .18s;
+}
+.input:focus,.select:focus,.textarea:focus{
+  border-color:var(--g500);
+  box-shadow:0 0 0 3px rgba(34,197,94,.12);
+}
+.select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.textarea{resize:vertical;min-height:80px}
+.input-row{display:flex;gap:8px}
+
+/* ─── UPLOAD ZONE ───────────────────────────────── */
+.upload-area{
+  border:2px dashed var(--slate200);border-radius:var(--radius-lg);
+  padding:32px 20px;text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--slate50);
+}
+.upload-area:hover,.upload-area.drag{
+  border-color:var(--g400);background:var(--g50);
+}
+.upload-icon{font-size:2.2rem;margin-bottom:10px}
+.upload-title{font-size:.9rem;font-weight:600;color:var(--slate700)}
+.upload-title span{color:var(--g600)}
+.upload-sub{font-size:.75rem;color:var(--slate400);margin-top:4px}
+.upload-preview{margin-top:12px;border-radius:var(--radius);overflow:hidden;display:none}
+.upload-preview img{width:100%;max-height:200px;object-fit:cover}
+
+/* ─── AI BOX ────────────────────────────────────── */
+.ai-box{
+  background:linear-gradient(135deg,#f0fdf4,#eff6ff);
+  border:1px solid var(--g200);border-radius:var(--radius-lg);
+  padding:16px;margin-top:12px;display:none;
+}
+.ai-header{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.ai-icon{
+  width:28px;height:28px;background:var(--g600);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;color:white;
+}
+.ai-title{font-size:.8rem;font-weight:700;color:var(--slate800)}
+.ai-subtitle{font-size:.65rem;color:var(--slate400)}
+.ai-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ai-key{font-size:.75rem;color:var(--slate500)}
+.ai-val{font-size:.82rem;font-weight:700;color:var(--slate800)}
+.ai-conf{margin-top:10px}
+.ai-conf-label{font-size:.68rem;color:var(--slate500);margin-bottom:4px;display:flex;justify-content:space-between}
+
+/* ─── MAP ───────────────────────────────────────── */
+.map-wrap{
+  background:#0f172a;border-radius:var(--radius-lg);
+  position:relative;overflow:hidden;
+  border:1px solid var(--slate200);
+}
+.map-grid-overlay{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(148,163,184,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,163,184,.06) 1px,transparent 1px);
+  background-size:36px 36px;
+}
+.map-hud{
+  position:absolute;top:12px;left:14px;right:14px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  pointer-events:none;
+}
+.map-hud-label{font-size:.62rem;font-family:monospace;color:rgba(148,163,184,.6);letter-spacing:1px}
+.map-legend{
+  position:absolute;bottom:14px;left:14px;
+  display:flex;gap:12px;
+}
+.ml-item{display:flex;align-items:center;gap:5px;font-size:.64rem;color:rgba(148,163,184,.7)}
+.ml-dot{width:9px;height:9px;border-radius:50%}
+.pin{
+  position:absolute;width:13px;height:13px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.7);cursor:pointer;
+  transition:transform .2s;
+}
+.pin:hover{transform:scale(1.6);z-index:10}
+.pin-red{background:#ef4444}
+.pin-amber{background:#f59e0b}
+.pin-green{background:#22c55e}
+.pin-red{animation:pulse-r 2.2s infinite}
+@keyframes pulse-r{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}
+  60%{box-shadow:0 0 0 7px rgba(239,68,68,0)}
+}
+.truck-icon{
+  position:absolute;font-size:1.2rem;cursor:pointer;
+  animation:truck 9s ease-in-out infinite;
+}
+@keyframes truck{0%,100%{transform:translateX(0)}50%{transform:translateX(50px)}}
+.city-ghost{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:1.6rem;font-weight:900;letter-spacing:4px;
+  color:rgba(255,255,255,.05);pointer-events:none;font-family:var(--font);
+  white-space:nowrap;
+}
+
+/* ─── TABLE ─────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead tr{background:var(--slate50)}
+th{
+  padding:10px 16px;text-align:left;font-size:.68rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;color:var(--slate500);
+  border-bottom:1px solid var(--slate200);white-space:nowrap;
+}
+td{padding:11px 16px;border-bottom:1px solid var(--slate100);color:var(--slate700);vertical-align:middle}
+tbody tr:hover{background:var(--slate50)}
+tbody tr:last-child td{border-bottom:none}
+
+/* ─── WARD CARD ──────────────────────────────────── */
+.ward-card{
+  background:white;border:1px solid var(--slate200);
+  border-radius:var(--radius-lg);padding:16px;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.ward-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.ward-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+.wc-ex::after{background:var(--g500)}
+.wc-gd::after{background:#34d399}
+.wc-av::after{background:var(--amber)}
+.wc-pr::after{background:var(--orange)}
+.wc-cr::after{background:var(--red)}
+.ward-num{font-size:.68rem;font-weight:700;color:var(--slate400);letter-spacing:.5px}
+.ward-name{font-size:.88rem;font-weight:700;color:var(--slate800);margin:2px 0}
+.ward-score{font-size:1.8rem;font-weight:800;line-height:1;margin:8px 0 4px}
+.ws-ex{color:var(--g600)}.ws-gd{color:#059669}.ws-av{color:#d97706}.ws-pr{color:var(--orange)}.ws-cr{color:var(--red)}
+
+/* ─── LEADERBOARD ───────────────────────────────── */
+.lb-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;border-radius:var(--radius);
+  border:1px solid var(--slate200);background:white;
+  transition:all .18s;margin-bottom:6px;
+}
+.lb-item:hover{border-color:var(--g300);background:var(--g50)}
+.lb-item.me{border-color:var(--g400);background:linear-gradient(135deg,var(--g50),#eff6ff)}
+.lb-rank{font-size:1rem;font-weight:800;width:28px;text-align:center;color:var(--slate400)}
+.lb-rank.gold{color:#d97706}
+.lb-rank.silver{color:#94a3b8}
+.lb-rank.bronze{color:#b45309}
+.lb-av{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.78rem;font-weight:700;color:white;flex-shrink:0;
+}
+.lb-info{flex:1}
+.lb-name{font-size:.83rem;font-weight:700;color:var(--slate800)}
+.lb-ward{font-size:.68rem;color:var(--slate400)}
+.lb-pts{font-size:.88rem;font-weight:800;color:var(--g700)}
+
+/* ─── REWARD BADGE CARD ──────────────────────────── */
+.rbc{
+  background:white;border:1px solid var(--slate200);
+  border-radius:var(--radius-lg);padding:20px 16px;
+  text-align:center;transition:all .2s;
+}
+.rbc:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.rbc.earned{
+  border-color:var(--g300);
+  background:linear-gradient(135deg,var(--g50),#fffbeb);
+}
+.rbc-icon{font-size:2.4rem;margin-bottom:8px;display:block}
+.rbc-name{font-size:.85rem;font-weight:700;color:var(--slate800)}
+.rbc-ta{font-family:var(--font-ta);font-size:.65rem;color:var(--slate400);margin:2px 0 6px}
+.rbc-desc{font-size:.72rem;color:var(--slate500)}
+.rbc-pts{font-size:.75rem;font-weight:700;color:var(--g600);margin-top:8px}
+
+/* ─── SEG CARD ───────────────────────────────────── */
+.seg-card{border-radius:var(--radius-lg);padding:20px;border:1.5px solid}
+.seg-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);transition:all .2s}
+.sc-wet{background:#f0fdf4;border-color:#86efac}
+.sc-dry{background:#fffbeb;border-color:#fde68a}
+.sc-plastic{background:#eff6ff;border-color:#bfdbfe}
+.sc-ewaste{background:#f5f3ff;border-color:#ddd6fe}
+.seg-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;margin-bottom:4px;
+}
+.seg-subtag{font-family:var(--font-ta);font-size:.68rem;color:var(--slate500);margin-bottom:12px;display:block}
+.seg-items{list-style:none}
+.seg-items li{
+  font-size:.78rem;color:var(--slate600);
+  padding:3px 0;display:flex;align-items:center;gap:8px;
+}
+.seg-items li::before{content:'·';color:var(--slate400);font-size:.6rem}
+.seg-tip{
+  margin-top:10px;padding:8px 10px;border-radius:8px;
+  font-size:.7rem;font-weight:600;
+}
+
+/* ─── ACTIVITY ───────────────────────────────────── */
+.act-item{
+  display:flex;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--slate100);
+}
+.act-item:last-child{border:none}
+.act-dot{
+  width:8px;height:8px;border-radius:50%;
+  flex-shrink:0;margin-top:5px;
+}
+.act-text{font-size:.8rem;color:var(--slate600);line-height:1.5}
+.act-time{font-size:.65rem;color:var(--slate400);margin-top:2px}
+
+/* ─── PROFILE MINI ───────────────────────────────── */
+.profile-ring{
+  width:76px;height:76px;position:relative;flex-shrink:0;
+}
+.profile-ring svg{position:absolute;inset:0;width:100%;height:100%}
+.profile-ring-inner{
+  position:absolute;inset:8px;border-radius:50%;
+  background:linear-gradient(135deg,var(--g500),var(--g700));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;font-weight:800;color:white;
+  box-shadow:0 4px 12px rgba(22,163,74,.3);
+}
+
+/* ─── TRUCK ITEM ─────────────────────────────────── */
+.truck-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;border:1px solid var(--slate200);
+  border-radius:var(--radius);background:white;
+  transition:all .18s;
+}
+.truck-row:hover{border-color:var(--g300)}
+.truck-emoji{font-size:1.5rem;flex-shrink:0}
+.truck-inf{flex:1}
+.truck-id{font-size:.82rem;font-weight:700;color:var(--slate800)}
+.truck-route{font-size:.7rem;color:var(--slate400)}
+.truck-r{text-align:right}
+.truck-eta{font-size:.8rem;font-weight:700;color:var(--g700)}
+.truck-stat{font-size:.65rem;color:var(--slate400)}
+
+/* ─── WORKFLOW ───────────────────────────────────── */
+.workflow{display:flex;gap:0;background:white;border:1px solid var(--slate200);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px}
+.wf-step{flex:1;padding:14px 8px;text-align:center;border-right:1px solid var(--slate200);transition:.2s}
+.wf-step:last-child{border:none}
+.wf-step.done{background:var(--g50)}
+.wf-step.active{background:linear-gradient(135deg,#f0fdf4,#eff6ff)}
+.wf-num{
+  width:24px;height:24px;border-radius:50%;margin:0 auto 6px;
+  background:var(--slate200);color:var(--slate500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;
+}
+.wf-step.done .wf-num{background:var(--g500);color:white}
+.wf-step.active .wf-num{background:var(--blue);color:white;animation:pulse-b 2s infinite}
+@keyframes pulse-b{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.4)}60%{box-shadow:0 0 0 6px rgba(59,130,246,0)}}
+.wf-lbl{font-size:.62rem;color:var(--slate400);font-weight:500;line-height:1.3}
+.wf-step.done .wf-lbl{color:var(--g600)}
+.wf-step.active .wf-lbl{color:var(--blue);font-weight:600}
+
+/* ─── CHART ──────────────────────────────────────── */
+.chart-area{
+  background:var(--slate50);border-radius:var(--radius);
+  height:150px;display:flex;align-items:flex-end;
+  gap:5px;padding:10px 10px 28px;position:relative;overflow:hidden;
+}
+.cbar{
+  flex:1;border-radius:4px 4px 0 0;cursor:pointer;min-width:18px;
+  transition:all .3s;
+}
+.cbar-green{background:linear-gradient(180deg,#4ade80,var(--g600))}
+.cbar-blue{background:linear-gradient(180deg,#60a5fa,var(--blue))}
+.cbar:hover{filter:brightness(1.1);transform:scaleY(1.03);transform-origin:bottom}
+.cbar::after{
+  content:attr(data-l);
+  position:absolute;bottom:6px;left:50%;
+  transform:translateX(-50%);font-size:.58rem;color:var(--slate400);
+  white-space:nowrap;
+}
+.cbar{position:relative}
+.chart-line{position:absolute;bottom:26px;left:10px;right:10px;height:1px;background:var(--slate200)}
+
+/* ─── TOAST ──────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--slate900);color:white;
+  padding:12px 16px;border-radius:var(--radius-lg);
+  font-size:.82rem;font-weight:500;max-width:320px;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(80px);opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  z-index:9000;display:flex;align-items:center;gap:10px;
+  border-left:3px solid var(--g400);
+}
+#toast.on{transform:translateY(0);opacity:1}
+
+/* ─── MODAL ──────────────────────────────────────── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(15,23,42,.4);
+  backdrop-filter:blur(4px);z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:all .25s;
+}
+.modal-bg.on{opacity:1;visibility:visible}
+.modal-box{
+  background:white;border-radius:var(--radius-xl);
+  width:460px;max-width:92vw;padding:24px;
+  box-shadow:var(--shadow-lg);position:relative;
+  transform:translateY(24px) scale(.95);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-bg.on .modal-box{transform:none}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--slate100);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;color:var(--slate500);transition:.18s;
+}
+.modal-close:hover{background:var(--slate200)}
+
+/* ─── DIVIDER ────────────────────────────────────── */
+.divider{height:1px;background:var(--slate100);margin:16px 0}
+
+/* ─── STEP DOTS ──────────────────────────────────── */
+.step-dots{display:flex;gap:6px;margin-bottom:20px}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--slate200);transition:.3s}
+.sdot.on{background:var(--g500);transform:scale(1.3)}
+.sdot.done{background:var(--g400)}
+
+/* ─── ROLE TAB ───────────────────────────────────── */
+.role-tabs{display:flex;gap:2px;background:var(--slate100);border-radius:10px;padding:3px;margin-bottom:0}
+.role-tab{
+  flex:1;padding:7px 10px;border-radius:8px;
+  font-size:.75rem;font-weight:600;cursor:pointer;border:none;
+  background:transparent;color:var(--slate500);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .18s;
+}
+.role-tab.on{background:white;color:var(--slate800);box-shadow:var(--shadow-xs)}
+
+/* ─── NEXT TRUCK BANNER ─────────────────────────── */
+.truck-banner{
+  background:linear-gradient(135deg,var(--g700),var(--g600));
+  border-radius:var(--radius-lg);padding:16px 20px;color:white;
+}
+.tb-label{font-size:.62rem;font-weight:700;letter-spacing:.8px;opacity:.7;text-transform:uppercase}
+.tb-time{font-size:2rem;font-weight:800;line-height:1;margin:4px 0}
+.tb-info{font-size:.78rem;opacity:.8}
+.tb-chips{display:flex;gap:6px;margin-top:10px}
+.tb-chip{background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px;font-size:.68rem}
+
+/* ─── SCORE MINI ─────────────────────────────────── */
+.score-box{
+  display:flex;align-items:center;gap:4px;
+  font-size:.75rem;font-weight:700;
+}
+.score-bar-bg{flex:1;height:4px;background:var(--slate100);border-radius:2px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px}
+
+/* ─── MISC ───────────────────────────────────────── */
+.flex{display:flex}.items-center{align-items:center}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.flex-1{flex:1}.text-center{text-align:center}.mb-3{margin-bottom:12px}.mb-4{margin-bottom:16px}.mb-5{margin-bottom:20px}
+.text-sm{font-size:.82rem}.text-xs{font-size:.72rem}.text-2xs{font-size:.65rem}
+.fw-7{font-weight:700}.fw-8{font-weight:800}.text-slate4{color:var(--slate400)}.text-slate5{color:var(--slate500)}.text-slate8{color:var(--slate800)}
+.text-green{color:var(--g700)}.text-red{color:var(--red)}.text-amber{color:#d97706}
+.truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mono{font-family:monospace}
+</style>
+</head>
+<body>
+
+<!-- ── LOADER ──────────────────────────────────── -->
+<div id="loader">
+  <div class="loader-logo">🌿</div>
+  <div class="loader-brand">Clean Madurai</div>
+  <div class="loader-sub">சுத்தமான மதுரை</div>
+  <div class="loader-spin"></div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────── -->
+<div id="toast"><span id="ti"></span><span id="tm"></span></div>
+
+<!-- ── MODAL ───────────────────────────────────── -->
+<div class="modal-bg" id="mb">
+  <div class="modal-box">
+    <button class="modal-close" onclick="cm()">✕</button>
+    <div id="mc"></div>
+  </div>
+</div>
+
+<div class="app">
+<!-- ── SIDEBAR ─────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="brand">
+      <div class="brand-icon">🌿</div>
+      <div>
+        <div class="brand-name">Clean Madurai</div>
+        <div class="brand-sub">சுத்தமான மதுரை</div>
+      </div>
+    </div>
+    <div class="lang-row">
+      <button class="lang-opt on" onclick="setLang('en',this)">English</button>
+      <button class="lang-opt" onclick="setLang('ta',this)">தமிழ்</button>
+    </div>
+  </div>
+
+  <div class="sidebar-body">
+    <div style="margin-bottom:14px">
+      <div class="role-tabs">
+        <button class="role-tab on" onclick="setRole('citizen',this)">👤 <span data-en="Citizen" data-ta="குடிமகன்">Citizen</span></button>
+        <button class="role-tab" onclick="setRole('official',this)">🏛 <span data-en="Official" data-ta="அலுவலர்">Official</span></button>
+        <button class="role-tab" onclick="setRole('worker',this)">🚛 <span data-en="Worker" data-ta="தொழிலாளர்">Worker</span></button>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-en="OVERVIEW" data-ta="கண்ணோட்டம்">OVERVIEW</div>
+      <div class="nav-link active" onclick="go('dashboard',this)">
+        <div class="nav-icon-wrap">🏠</div>
+        <span class="nav-label" data-en="Dashboard" data-ta="டாஷ்போர்டு">Dashboard</span>
+      </div>
+      <div class="nav-link" onclick="go('report',this)">
+        <div class="nav-icon-wrap">📸</div>
+        <span class="nav-label" data-en="Report Garbage" data-ta="குப்பை புகார்">Report Garbage</span>
+        <span class="nav-chip chip-new">New</span>
+      </div>
+      <div class="nav-link" onclick="go('map',this)">
+        <div class="nav-icon-wrap">🗺</div>
+        <span class="nav-label" data-en="Waste Map" data-ta="கழிவு வரைபடம்">Waste Map</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-en="TRACKING" data-ta="கண்காணிப்பு">TRACKING</div>
+      <div class="nav-link" onclick="go('trucks',this)">
+        <div class="nav-icon-wrap">🚛</div>
+        <span class="nav-label" data-en="Truck Tracker" data-ta="வண்டி கண்காணிப்பு">Truck Tracker</span>
+        <span class="nav-chip chip-green">Live</span>
+      </div>
+      <div class="nav-link" onclick="go('wards',this)">
+        <div class="nav-icon-wrap">📊</div>
+        <span class="nav-label" data-en="Ward Rankings" data-ta="வார்டு தரவரிசை">Ward Rankings</span>
+      </div>
+      <div class="nav-link" onclick="go('complaints',this)">
+        <div class="nav-icon-wrap">📋</div>
+        <span class="nav-label" data-en="Complaints" data-ta="புகார்கள்">Complaints</span>
+        <span class="nav-chip chip-red">14</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-en="COMMUNITY" data-ta="சமூகம்">COMMUNITY</div>
+      <div class="nav-link" onclick="go('segregation',this)">
+        <div class="nav-icon-wrap">♻️</div>
+        <span class="nav-label" data-en="Segregation Guide" data-ta="பிரிக்கும் வழிகாட்டி">Segregation</span>
+      </div>
+      <div class="nav-link" onclick="go('rewards',this)">
+        <div class="nav-icon-wrap">🏆</div>
+        <span class="nav-label" data-en="Rewards" data-ta="விருதுகள்">Rewards</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-en="ADMIN" data-ta="நிர்வாகம்">ADMIN</div>
+      <div class="nav-link" onclick="go('admin',this)">
+        <div class="nav-icon-wrap">⚙️</div>
+        <span class="nav-label" data-en="Admin Panel" data-ta="நிர்வாக குழு">Admin Panel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="clean-index">
+      <div class="ci-label">CITY CLEAN INDEX</div>
+      <div class="ci-score">67<span style="font-size:1rem;opacity:.5">/100</span></div>
+      <div class="ci-track"><div class="ci-fill"></div></div>
+      <div class="ci-note">↑ +12 pts from last month</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ────────────────────────────────────── -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="page-title">
+      Dashboard
+      <span id="page-ta">டாஷ்போர்டு</span>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="time-badge" id="clk"></div>
+    <button class="topbar-notif" onclick="toast('📬','3 new complaints in Ward 12')">
+      🔔<div class="notif-badge"></div>
+    </button>
+    <div class="user-pill" id="userPill">
+      <div class="user-av" id="uav">RK</div>
+      <div class="user-info">
+        <div class="user-name" id="uname">Rajan Kumar</div>
+        <div class="user-role" id="urole">Citizen · Ward 12</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+  <!-- ══════════ DASHBOARD ══════════════════════ -->
+  <div class="screen on" id="s-dashboard">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Good Morning, Rajan 👋<span class="ph-ta">காலை வணக்கம், ராஜன்</span></div>
+        <div class="ph-sub">Madurai Municipal Corporation · Saturday, March 14, 2026</div>
+      </div>
+      <div class="ph-right">
+        <button class="btn btn-outline btn-sm">📥 Export</button>
+        <button class="btn btn-primary" onclick="go('report',null)">📸 Report Issue</button>
+      </div>
+    </div>
+
+    <div class="grid-4 mb-5">
+      <div class="stat-card">
+        <div class="stat-top">
+          <div class="stat-icon-box si-blue">📋</div>
+          <span class="stat-badge sb-up">↑ 18%</span>
+        </div>
+        <div class="stat-value">1,247</div>
+        <div class="stat-label">Reports Today<span class="stat-label-ta">இன்று புகார்கள்</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <div class="stat-icon-box si-green">✅</div>
+          <span class="stat-badge sb-up">71.5%</span>
+        </div>
+        <div class="stat-value">892</div>
+        <div class="stat-label">Resolved Today<span class="stat-label-ta">தீர்க்கப்பட்டது</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <div class="stat-icon-box si-amber">🚛</div>
+          <span class="stat-badge sb-up">+6</span>
+        </div>
+        <div class="stat-value">38</div>
+        <div class="stat-label">Active Trucks<span class="stat-label-ta">வண்டிகள்</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <div class="stat-icon-box si-red">⚠️</div>
+          <span class="stat-badge sb-down">↓ 23%</span>
+        </div>
+        <div class="stat-value">87</div>
+        <div class="stat-label">High Priority<span class="stat-label-ta">அதிக முன்னுரிமை</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-4">
+      <!-- Activity -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Live Activity <span class="card-title-ta">நேரடி செயல்பாடு</span></span>
+          <span class="badge b-live" style="font-size:.6rem;">● LIVE</span>
+        </div>
+        <div class="card-body" id="act-feed" style="padding-bottom:12px">
+          <div class="act-item"><div class="act-dot" style="background:var(--red)"></div><div><div class="act-text">🚨 High priority plastic waste at <b>Anna Nagar 4th St</b></div><div class="act-time">2 min ago · Ward 7</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--g500)"></div><div><div class="act-text">✅ Cleaning completed at <b>KK Nagar Market</b> by Team B</div><div class="act-time">5 min ago · Ward 12</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--orange)"></div><div><div class="act-text">🤖 AI detected construction debris at <b>Bye-Pass Road</b></div><div class="act-time">8 min ago · Ward 18</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--blue)"></div><div><div class="act-text">🚛 Truck TN58AQ1234 started <b>Tallakulam Zone</b> route</div><div class="act-time">11 min ago · Ward 3</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:#f59e0b"></div><div><div class="act-text">🏆 <b>Priya Sundari</b> earned Clean Warrior badge (+50 pts)</div><div class="act-time">15 min ago</div></div></div>
+        </div>
+      </div>
+
+      <!-- My Card -->
+      <div>
+        <div class="card mb-4">
+          <div class="card-head">
+            <span class="card-title">My Profile <span class="card-title-ta">என் சுயவிவரம்</span></span>
+            <button class="btn btn-outline btn-sm" onclick="go('rewards',null)">View Badges</button>
+          </div>
+          <div class="card-body">
+            <div class="flex gap-3 mb-4" style="align-items:center">
+              <div class="profile-ring">
+                <svg viewBox="0 0 76 76" fill="none">
+                  <circle cx="38" cy="38" r="32" stroke="#e2e8f0" stroke-width="6"/>
+                  <circle cx="38" cy="38" r="32" stroke="#22c55e" stroke-width="6"
+                    stroke-dasharray="201" stroke-dashoffset="66"
+                    stroke-linecap="round" transform="rotate(-90 38 38)"/>
+                </svg>
+                <div class="profile-ring-inner">RK</div>
+              </div>
+              <div class="flex-1">
+                <div style="font-size:.9rem;font-weight:700;color:var(--slate800);margin-bottom:6px">Rajan Kumar</div>
+                <div class="flex gap-2 mb-3" style="flex-wrap:wrap">
+                  <span class="badge b-green">🌱 Green Citizen</span>
+                  <span class="badge b-green">⚔️ Clean Warrior</span>
+                </div>
+                <div class="text-2xs text-slate5">Next: <b class="text-green">Madurai Guardian</b> — 160 pts away</div>
+                <div class="progress" style="margin-top:6px"><div class="progress-fill pf-green" style="width:84%"></div></div>
+              </div>
+            </div>
+            <div class="grid-3" style="gap:8px">
+              <div style="text-align:center;padding:10px 6px;background:var(--slate50);border-radius:var(--radius)">
+                <div style="font-size:1.4rem;font-weight:800;color:var(--g700)">840</div>
+                <div class="text-2xs text-slate4">Points</div>
+              </div>
+              <div style="text-align:center;padding:10px 6px;background:var(--slate50);border-radius:var(--radius)">
+                <div style="font-size:1.4rem;font-weight:800;color:var(--blue)">23</div>
+                <div class="text-2xs text-slate4">Reports</div>
+              </div>
+              <div style="text-align:center;padding:10px 6px;background:var(--slate50);border-radius:var(--radius)">
+                <div style="font-size:1.4rem;font-weight:800;color:var(--orange)">#4</div>
+                <div class="text-2xs text-slate4">Ward Rank</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Quick Actions <span class="card-title-ta">விரைவு செயல்கள்</span></span>
+          </div>
+          <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-primary" style="justify-content:center" onclick="go('report',null)">📸 Report</button>
+            <button class="btn btn-outline" style="justify-content:center" onclick="go('map',null)">🗺 View Map</button>
+            <button class="btn btn-outline" style="justify-content:center" onclick="go('segregation',null)">♻️ Segregate</button>
+            <button class="btn btn-outline" style="justify-content:center" onclick="go('rewards',null)">🏆 Rewards</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Weekly Waste Reports <span class="card-title-ta">வாராந்திர புகார்கள்</span></span>
+        <div class="flex gap-3 text-xs text-slate4">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--g500);display:inline-block"></span>Reports</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue);display:inline-block"></span>Resolved</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <div class="chart-line"></div>
+          <div class="cbar cbar-green" style="height:55%" data-l="Mon"></div>
+          <div class="cbar cbar-green" style="height:78%" data-l="Tue"></div>
+          <div class="cbar cbar-green" style="height:62%" data-l="Wed"></div>
+          <div class="cbar cbar-green" style="height:90%" data-l="Thu"></div>
+          <div class="cbar cbar-green" style="height:48%" data-l="Fri"></div>
+          <div class="cbar cbar-blue" style="height:38%" data-l="Sat"></div>
+          <div class="cbar cbar-blue" style="height:52%" data-l="Sun"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ REPORT ═════════════════════════ -->
+  <div class="screen" id="s-report">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Report Garbage<span class="ph-ta">குப்பை புகார் செய்க</span></div>
+        <div class="ph-sub">Help keep Madurai clean — report garbage in your area</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="card mb-4">
+          <div class="card-head">
+            <span class="card-title">📸 Upload Photo <span class="card-title-ta">புகைப்படம்</span></span>
+          </div>
+          <div class="card-body">
+            <div class="upload-area" id="ua" onclick="document.getElementById('fi').click()"
+              ondragover="this.classList.add('drag')" ondragleave="this.classList.remove('drag')">
+              <div class="upload-icon">📷</div>
+              <div class="upload-title"><span>Click to upload</span> or drag & drop</div>
+              <div class="upload-sub">PNG, JPG up to 10MB · புகைப்படம் பதிவேற்றவும்</div>
+            </div>
+            <input type="file" id="fi" style="display:none" accept="image/*" onchange="handleImg(event)">
+            <div class="upload-preview" id="up"><img id="pi" src="" alt="preview"></div>
+            <div class="ai-box" id="aib">
+              <div class="ai-header">
+                <div class="ai-icon">🤖</div>
+                <div><div class="ai-title">AI Waste Analysis</div><div class="ai-subtitle">TensorFlow Model v2.4 · கழிவு பகுப்பாய்வு</div></div>
+              </div>
+              <div class="ai-row"><span class="ai-key">Waste Type</span><span class="ai-val" id="a-type">—</span></div>
+              <div class="ai-row"><span class="ai-key">Priority</span><span class="ai-val" id="a-prio">—</span></div>
+              <div class="ai-row"><span class="ai-key">Estimated Volume</span><span class="ai-val" id="a-vol">—</span></div>
+              <div class="ai-conf">
+                <div class="ai-conf-label"><span>Confidence</span><span id="a-pct">0%</span></div>
+                <div class="progress"><div class="progress-fill pf-green" id="a-bar" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">📍 Complaint Details <span class="card-title-ta">புகார் விவரங்கள்</span></span>
+          </div>
+          <div class="card-body">
+            <div class="step-dots">
+              <div class="sdot done"></div><div class="sdot on"></div><div class="sdot"></div>
+            </div>
+            <div class="form-row">
+              <label class="label">Location / இடம் <span class="label-ta">GPS auto-detected</span></label>
+              <div class="input-row">
+                <input class="input" style="flex:1" value="Ward 12, KK Nagar, Madurai — 9.9371° N">
+                <button class="btn btn-outline btn-sm" onclick="toast('📍','GPS location updated')">📍</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="label">Ward / வார்டு</label>
+              <select class="select">
+                <option>Ward 1 — Madurai North</option>
+                <option>Ward 5 — Tallakulam</option>
+                <option>Ward 7 — Anna Nagar</option>
+                <option selected>Ward 12 — KK Nagar</option>
+                <option>Ward 15 — Goripalayam</option>
+                <option>Ward 18 — Bye-Pass Road</option>
+                <option>Ward 22 — Palanganatham</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="label">Waste Category / கழிவு வகை</label>
+              <select class="select" id="wtype">
+                <option>🟤 Organic Waste — இயற்கை கழிவு</option>
+                <option selected>🔵 Plastic Waste — பிளாஸ்டிக்</option>
+                <option>🟡 Construction Debris</option>
+                <option>⚫ Mixed Waste</option>
+                <option>🟣 E-Waste</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="label">Description / விளக்கம்</label>
+              <textarea class="textarea">Large pile of plastic bags near the park entrance. Strong odour present.</textarea>
+            </div>
+            <div class="form-row">
+              <label class="label">Priority / முன்னுரிமை</label>
+              <div class="flex gap-2">
+                <label style="flex:1;display:flex;align-items:center;gap:6px;padding:9px 10px;border:1.5px solid var(--slate200);border-radius:var(--radius);cursor:pointer;font-size:.78rem;font-weight:500">
+                  <input type="radio" name="prio" value="low"> <span class="text-green">🟢 Low</span>
+                </label>
+                <label style="flex:1;display:flex;align-items:center;gap:6px;padding:9px 10px;border:1.5px solid #fde68a;border-radius:var(--radius);cursor:pointer;font-size:.78rem;font-weight:500;background:#fffbeb">
+                  <input type="radio" name="prio" value="med" checked> <span class="text-amber">🟡 Medium</span>
+                </label>
+                <label style="flex:1;display:flex;align-items:center;gap:6px;padding:9px 10px;border:1.5px solid var(--slate200);border-radius:var(--radius);cursor:pointer;font-size:.78rem;font-weight:500">
+                  <input type="radio" name="prio" value="high"> <span class="text-red">🔴 High</span>
+                </label>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="submitReport()">
+              📤 Submit Complaint — புகார் அனுப்பு
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MAP ════════════════════════════ -->
+  <div class="screen" id="s-map">
+    <div class="ph">
+      <div><div class="ph-title">Waste Hotspot Map<span class="ph-ta">கழிவு வரைபடம்</span></div><div class="ph-sub">Live garbage locations across all 72 wards · Madurai Municipal Corporation</div></div>
+      <div class="ph-right">
+        <button class="btn btn-outline btn-sm">📥 Export</button>
+        <button class="btn btn-primary btn-sm" onclick="toast('🗺','Map refreshed!')">🔄 Refresh</button>
+      </div>
+    </div>
+    <div class="card mb-4" style="overflow:hidden">
+      <div class="map-wrap" style="height:400px">
+        <div class="map-grid-overlay"></div>
+        <div class="city-ghost">MADURAI</div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.12" viewBox="0 0 800 400">
+          <line x1="400" y1="0" x2="400" y2="400" stroke="#4a90d9" stroke-width="2.5"/>
+          <line x1="0" y1="200" x2="800" y2="200" stroke="#4a90d9" stroke-width="2.5"/>
+          <line x1="80" y1="0" x2="720" y2="400" stroke="#4a90d9" stroke-width="1.5"/>
+          <line x1="720" y1="0" x2="80" y2="400" stroke="#4a90d9" stroke-width="1.5"/>
+          <circle cx="400" cy="200" r="90" stroke="#4a90d9" stroke-width="1.2" fill="none"/>
+          <circle cx="400" cy="200" r="180" stroke="#4a90d9" stroke-width=".8" fill="none" stroke-dasharray="6 4"/>
+          <text x="400" y="196" text-anchor="middle" fill="rgba(148,163,184,.3)" font-size="9" font-family="monospace">MEENAKSHI AMMAN TEMPLE</text>
+        </svg>
+        <div class="pin pin-red" style="left:14%;top:22%" title="Anna Nagar · HIGH · Plastic"></div>
+        <div class="pin pin-red" style="left:71%;top:17%" title="Ellis Nagar · HIGH · Mixed"></div>
+        <div class="pin pin-red" style="left:27%;top:62%" title="Sellur · HIGH · Construction"></div>
+        <div class="pin pin-red" style="left:83%;top:58%" title="Palanganatham · HIGH · Mixed"></div>
+        <div class="pin pin-red" style="left:54%;top:74%" title="Bye-Pass · CRITICAL"></div>
+        <div class="pin pin-red" style="left:9%;top:72%" title="Villapuram · MEDIUM"></div>
+        <div class="pin pin-amber" style="left:37%;top:32%" title="KK Nagar · In Progress"></div>
+        <div class="pin pin-amber" style="left:59%;top:44%" title="Simmakkal · In Progress"></div>
+        <div class="pin pin-amber" style="left:24%;top:42%" title="Teppakulam · In Progress"></div>
+        <div class="pin pin-green" style="left:47%;top:20%" title="Tallakulam · Cleaned"></div>
+        <div class="pin pin-green" style="left:64%;top:66%" title="Goripalayam · Cleaned"></div>
+        <div class="pin pin-green" style="left:41%;top:55%" title="Naidupuram · Cleaned"></div>
+        <div class="truck-icon" style="left:19%;top:44%;animation-delay:0s">🚛</div>
+        <div class="truck-icon" style="left:59%;top:28%;animation-delay:-3s">🚛</div>
+        <div class="truck-icon" style="left:74%;top:72%;animation-delay:-6s">🚛</div>
+        <div class="map-hud">
+          <span class="map-hud-label">MADURAI WASTE LIVE MAP · 72 WARDS</span>
+          <span class="map-hud-label" id="map-time"></span>
+        </div>
+        <div class="map-legend">
+          <div class="ml-item"><div class="ml-dot" style="background:#ef4444"></div>Reported</div>
+          <div class="ml-item"><div class="ml-dot" style="background:#f59e0b"></div>In Progress</div>
+          <div class="ml-item"><div class="ml-dot" style="background:#22c55e"></div>Cleaned</div>
+          <div class="ml-item">🚛 Live Truck</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-red">🔴</div><span class="badge b-red">Critical</span></div><div class="stat-value">7</div><div class="stat-label">Active Hotspots<span class="stat-label-ta">செயலில் உள்ள புகார்கள்</span></div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-amber">🟡</div><span class="badge b-amber">Working</span></div><div class="stat-value">3</div><div class="stat-label">In Progress<span class="stat-label-ta">நடைபெறுகின்றது</span></div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-green">✅</div><span class="badge b-green">Today</span></div><div class="stat-value">3</div><div class="stat-label">Cleaned Today<span class="stat-label-ta">இன்று சுத்தம்</span></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ TRUCKS ══════════════════════════ -->
+  <div class="screen" id="s-trucks">
+    <div class="ph">
+      <div><div class="ph-title">Truck Tracker<span class="ph-ta">வண்டி கண்காணிப்பு</span></div><div class="ph-sub">Real-time GPS tracking of all garbage collection vehicles</div></div>
+      <span class="badge b-green" style="font-size:.72rem">● 38 Active</span>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="card mb-4">
+          <div class="card-head"><span class="card-title">Your Area Pickup <span class="card-title-ta">உங்கள் பகுதி</span></span></div>
+          <div class="card-body">
+            <div class="truck-banner mb-4">
+              <div class="tb-label">NEXT COLLECTION — அடுத்த சேகரிப்பு</div>
+              <div class="tb-time">8:45 AM</div>
+              <div class="tb-info">~15 minutes · Truck TN58BK5678</div>
+              <div class="tb-chips">
+                <div class="tb-chip">Ward 12 Route</div>
+                <div class="tb-chip">🟢 On Schedule</div>
+              </div>
+            </div>
+            <div class="text-xs fw-7 text-slate5 mb-3" style="letter-spacing:.5px;text-transform:uppercase">Route Progress</div>
+            <div class="progress" style="height:8px;margin-bottom:4px"><div class="progress-fill pf-green" style="width:62%"></div></div>
+            <div class="flex" style="justify-content:space-between"><span class="text-2xs text-slate4">KK Nagar Start</span><span class="text-2xs text-slate5 fw-7">62%</span><span class="text-2xs text-slate4">Market End</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">All Active Trucks <span class="card-title-ta">அனைத்து வண்டிகள்</span></span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px" id="truckList"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card mb-4">
+          <div class="card-head"><span class="card-title">Live Map <span class="card-title-ta">நேரடி வரைபடம்</span></span></div>
+          <div class="card-body" style="padding:0">
+            <div class="map-wrap" style="height:260px">
+              <div class="map-grid-overlay"></div>
+              <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.15" viewBox="0 0 400 260">
+                <path d="M50,130 Q150,70 200,130 Q250,190 350,130" stroke="#4a90d9" stroke-width="3" fill="none"/>
+                <line x1="0" y1="90" x2="400" y2="90" stroke="#4a90d9" stroke-width="1"/>
+                <line x1="0" y1="170" x2="400" y2="170" stroke="#4a90d9" stroke-width="1"/>
+                <line x1="140" y1="0" x2="140" y2="260" stroke="#4a90d9" stroke-width="1"/>
+                <line x1="260" y1="0" x2="260" y2="260" stroke="#4a90d9" stroke-width="1"/>
+              </svg>
+              <div class="truck-icon" style="left:32%;top:42%">🚛</div>
+              <div class="truck-icon" style="left:64%;top:52%;animation-delay:-4s">🚛</div>
+              <div style="position:absolute;bottom:10px;left:12px;font-size:.58rem;color:rgba(148,163,184,.5);font-family:monospace">Ward 12 — 2 trucks active</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Today's Stats <span class="card-title-ta">இன்றைய புள்ளியியல்</span></span></div>
+          <div class="card-body">
+            <div class="grid-2" style="gap:10px">
+              <div style="text-align:center;padding:12px;background:var(--slate50);border-radius:var(--radius)"><div style="font-size:1.5rem;font-weight:800;color:var(--g700)">247</div><div class="text-2xs text-slate4 mt-1">Households</div></div>
+              <div style="text-align:center;padding:12px;background:var(--slate50);border-radius:var(--radius)"><div style="font-size:1.5rem;font-weight:800;color:var(--blue)">4.2t</div><div class="text-2xs text-slate4 mt-1">Collected</div></div>
+              <div style="text-align:center;padding:12px;background:var(--slate50);border-radius:var(--radius)"><div style="font-size:1.5rem;font-weight:800;color:var(--g600)">96%</div><div class="text-2xs text-slate4 mt-1">On-Time</div></div>
+              <div style="text-align:center;padding:12px;background:var(--slate50);border-radius:var(--radius)"><div style="font-size:1.5rem;font-weight:800;color:var(--red)">3</div><div class="text-2xs text-slate4 mt-1">Skipped</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ WARDS ═══════════════════════════ -->
+  <div class="screen" id="s-wards">
+    <div class="ph">
+      <div><div class="ph-title">Ward Cleanliness Rankings<span class="ph-ta">வார்டு சுத்தம் தரவரிசை</span></div><div class="ph-sub">72 wards ranked by composite cleanliness score · Updated daily</div></div>
+      <div class="ph-right">
+        <select class="select" style="width:auto;font-size:.78rem">
+          <option>This Week</option><option>This Month</option><option>This Year</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Top 3 -->
+    <div class="grid-3 mb-4" style="align-items:end">
+      <div class="card" style="text-align:center;padding:20px;border-top:3px solid #94a3b8;margin-top:20px">
+        <div style="font-size:1.8rem">🥈</div>
+        <div style="font-size:1rem;font-weight:800;margin-top:6px">Ward 5</div>
+        <div class="text-xs text-slate4">Tallakulam</div>
+        <div style="font-size:2.2rem;font-weight:800;color:#64748b;margin:8px 0">94</div>
+        <span class="badge b-green">Excellent</span>
+      </div>
+      <div class="card" style="text-align:center;padding:20px;border-top:3px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff)">
+        <div style="font-size:2.2rem">🥇</div>
+        <div style="font-size:1.1rem;font-weight:800;margin-top:6px">Ward 3</div>
+        <div class="text-xs text-slate4">Goripalayam</div>
+        <div style="font-size:2.6rem;font-weight:800;color:#d97706;margin:8px 0">98</div>
+        <span class="badge b-amber">Champion 🏆</span>
+      </div>
+      <div class="card" style="text-align:center;padding:20px;border-top:3px solid #b45309;margin-top:20px">
+        <div style="font-size:1.8rem">🥉</div>
+        <div style="font-size:1rem;font-weight:800;margin-top:6px">Ward 8</div>
+        <div class="text-xs text-slate4">Anna Nagar</div>
+        <div style="font-size:2.2rem;font-weight:800;color:#b45309;margin:8px 0">91</div>
+        <span class="badge b-green">Excellent</span>
+      </div>
+    </div>
+
+    <div class="grid-auto" id="wardGrid"></div>
+  </div>
+
+  <!-- ══════════ COMPLAINTS ════════════════════ -->
+  <div class="screen" id="s-complaints">
+    <div class="ph">
+      <div><div class="ph-title">Complaints<span class="ph-ta">புகார்கள்</span></div><div class="ph-sub">Track and manage all waste complaints</div></div>
+      <div class="ph-right">
+        <select class="select" style="width:auto;font-size:.75rem">
+          <option>All Status</option><option>Pending</option><option>In Progress</option><option>Resolved</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="go('report',null)">📸 New Report</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>#ID</th><th>Location</th><th>Type</th><th>Priority</th><th>Reported By</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="cBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SEGREGATION ════════════════════ -->
+  <div class="screen" id="s-segregation">
+    <div class="ph">
+      <div><div class="ph-title">Waste Segregation Guide<span class="ph-ta">கழிவு பிரிக்கும் வழிகாட்டி</span></div><div class="ph-sub">Separate correctly — recycle more, landfill less</div></div>
+    </div>
+
+    <div class="card mb-4" style="background:linear-gradient(135deg,var(--g50),#eff6ff);border-color:var(--g200)">
+      <div class="card-body" style="display:flex;align-items:center;gap:16px">
+        <div style="font-size:2.5rem">🌍</div>
+        <div>
+          <div class="text-sm fw-7" style="color:var(--slate800)">Did you know?</div>
+          <div class="text-xs text-slate5" style="margin-top:3px;line-height:1.6">Madurai generates <b>~800 tonnes</b> of waste daily. Only 30% is currently segregated. Help us reach <b>80% by 2026!</b><br><span style="font-family:var(--font-ta)">மதுரையில் தினமும் ~800 டன் கழிவு உற்பத்தியாகிறது.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-4">
+      <div class="seg-card sc-wet">
+        <div class="seg-tag">🟢 Wet Waste <span style="color:var(--g700)">| ஈர கழிவு</span></div>
+        <span class="seg-subtag">🟢 Green Bin — பச்சை குப்பை பை</span>
+        <ul class="seg-items">
+          <li>Food scraps & leftovers (மீதமுள்ள உணவு)</li>
+          <li>Vegetable & fruit peels (காய்கறி தோல்)</li>
+          <li>Garden waste, leaves (இலைகள்)</li>
+          <li>Coffee grounds, tea bags</li>
+          <li>Egg shells, cooked food</li>
+        </ul>
+        <div class="seg-tip" style="background:rgba(34,197,94,.1);color:var(--g700)">♻️ Composted into manure — உரமாக மாற்றலாம்</div>
+      </div>
+      <div class="seg-card sc-dry">
+        <div class="seg-tag">🟡 Dry Waste <span style="color:#d97706">| உலர் கழிவு</span></div>
+        <span class="seg-subtag">🔵 Blue Bin — நீல குப்பை பை</span>
+        <ul class="seg-items">
+          <li>Paper & cardboard (காகிதம்)</li>
+          <li>Newspapers, magazines</li>
+          <li>Glass bottles (கண்ணாடி)</li>
+          <li>Metal cans & tins</li>
+          <li>Thermocol, rubber, leather</li>
+        </ul>
+        <div class="seg-tip" style="background:rgba(245,158,11,.1);color:#92400e">♻️ Recycled into new products</div>
+      </div>
+      <div class="seg-card sc-plastic">
+        <div class="seg-tag">🔵 Plastic Waste <span style="color:#1d4ed8">| பிளாஸ்டிக்</span></div>
+        <span class="seg-subtag">🟡 Yellow Bin — மஞ்சள் குப்பை பை</span>
+        <ul class="seg-items">
+          <li>PET bottles (தண்ணீர் பாட்டில்)</li>
+          <li>Carry bags (தூக்கு பை)</li>
+          <li>Milk sachets, covers</li>
+          <li>Plastic containers, boxes</li>
+          <li>Straws, cutlery, packaging</li>
+        </ul>
+        <div class="seg-tip" style="background:rgba(59,130,246,.1);color:#1d4ed8">⚠️ Rinse before disposal · கழுவிய பின் போடவும்</div>
+      </div>
+      <div class="seg-card sc-ewaste">
+        <div class="seg-tag">🟣 E-Waste <span style="color:#5b21b6">| மின்னணு கழிவு</span></div>
+        <span class="seg-subtag">🔴 Red Bin — சிவப்பு குப்பை பை</span>
+        <ul class="seg-items">
+          <li>Old mobiles, chargers (மொபைல்)</li>
+          <li>Batteries (பேட்டரி)</li>
+          <li>Bulbs, tube lights (பல்புகள்)</li>
+          <li>Medical waste (மருத்துவ)</li>
+          <li>Chemicals, paint cans</li>
+        </ul>
+        <div class="seg-tip" style="background:rgba(139,92,246,.1);color:#5b21b6">☠️ Hazardous — special disposal only</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">📅 Collection Schedule <span class="card-title-ta">சேகரிப்பு அட்டவணை</span></span></div>
+      <div class="card-body"><div class="tbl-wrap">
+        <table><thead><tr><th>Waste Type</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>
+        <tbody>
+          <tr><td><b>🟢 Wet Waste</b></td><td><span class="badge b-green">✓</span></td><td><span class="badge b-green">✓</span></td><td><span class="badge b-green">✓</span></td><td><span class="badge b-green">✓</span></td><td><span class="badge b-green">✓</span></td><td><span class="badge b-green">✓</span></td></tr>
+          <tr><td><b>🔵 Dry Waste</b></td><td><span class="badge b-blue">✓</span></td><td>—</td><td><span class="badge b-blue">✓</span></td><td>—</td><td><span class="badge b-blue">✓</span></td><td>—</td></tr>
+          <tr><td><b>🟣 E-Waste</b></td><td>—</td><td>—</td><td>—</td><td><span class="badge b-purple">✓</span></td><td>—</td><td>—</td></tr>
+        </tbody></table>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ REWARDS ════════════════════════ -->
+  <div class="screen" id="s-rewards">
+    <div class="ph">
+      <div><div class="ph-title">Rewards & Leaderboard<span class="ph-ta">விருதுகளும் தரவரிசையும்</span></div><div class="ph-sub">Earn points, win badges, make Madurai cleaner!</div></div>
+      <div style="background:linear-gradient(135deg,var(--g600),var(--g800));border-radius:var(--radius-lg);padding:10px 18px;color:white;text-align:center">
+        <div style="font-size:.58rem;font-weight:700;letter-spacing:.8px;opacity:.7;text-transform:uppercase">Your Points</div>
+        <div style="font-size:1.8rem;font-weight:800;line-height:1">840</div>
+      </div>
+    </div>
+
+    <div class="grid-3 mb-4">
+      <div class="rbc earned">
+        <span class="rbc-icon">🌱</span>
+        <div class="rbc-name">Green Citizen</div>
+        <div class="rbc-ta">பசுமை குடிமகன்</div>
+        <div class="rbc-desc">Report 5 garbage issues</div>
+        <div class="rbc-pts">✅ Earned · +100 pts</div>
+      </div>
+      <div class="rbc earned">
+        <span class="rbc-icon">⚔️</span>
+        <div class="rbc-name">Clean Warrior</div>
+        <div class="rbc-ta">சுத்தம் வீரன்</div>
+        <div class="rbc-desc">Join 3 community cleanups</div>
+        <div class="rbc-pts">✅ Earned · +250 pts</div>
+      </div>
+      <div class="rbc">
+        <span class="rbc-icon">🛡️</span>
+        <div class="rbc-name">Madurai Guardian</div>
+        <div class="rbc-ta">மதுரை காவலன்</div>
+        <div class="rbc-desc">Report 50+ issues in a month</div>
+        <div class="rbc-pts" style="color:var(--slate400)">🔒 160 pts needed</div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-head"><span class="card-title">How to Earn Points <span class="card-title-ta">புள்ளிகள் எப்படி</span></span></div>
+      <div class="card-body">
+        <div class="grid-4" style="gap:10px">
+          <div style="text-align:center;padding:14px 8px;background:var(--slate50);border-radius:var(--radius);border:1px solid var(--slate200)">
+            <div style="font-size:1.6rem;margin-bottom:6px">📸</div>
+            <div class="text-xs fw-7">Report Garbage</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--g600);margin:4px 0">+10</div>
+            <div class="text-2xs text-slate4">per report</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:var(--slate50);border-radius:var(--radius);border:1px solid var(--slate200)">
+            <div style="font-size:1.6rem;margin-bottom:6px">♻️</div>
+            <div class="text-xs fw-7">Segregate Waste</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--blue);margin:4px 0">+20</div>
+            <div class="text-2xs text-slate4">verified weekly</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:var(--slate50);border-radius:var(--radius);border:1px solid var(--slate200)">
+            <div style="font-size:1.6rem;margin-bottom:6px">🧹</div>
+            <div class="text-xs fw-7">Join Cleanup</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--orange);margin:4px 0">+50</div>
+            <div class="text-2xs text-slate4">per event</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:var(--slate50);border-radius:var(--radius);border:1px solid var(--slate200)">
+            <div style="font-size:1.6rem;margin-bottom:6px">⭐</div>
+            <div class="text-xs fw-7">Verified Report</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--purple);margin:4px 0">+25</div>
+            <div class="text-2xs text-slate4">bonus</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">🏆 Leaderboard <span class="card-title-ta">சாதனையாளர் பட்டியல்</span></span><span class="text-xs text-slate4">This Month</span></div>
+      <div class="card-body" id="lb"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ ADMIN ═══════════════════════════ -->
+  <div class="screen" id="s-admin">
+    <div class="ph">
+      <div><div class="ph-title">Admin Dashboard<span class="ph-ta">நிர்வாக டாஷ்போர்டு</span></div><div class="ph-sub">Madurai Municipal Corporation · Waste Management Control Center</div></div>
+      <span class="badge b-orange">Commissioner Access</span>
+    </div>
+
+    <div class="workflow mb-4">
+      <div class="wf-step done"><div class="wf-num">✓</div><div class="wf-lbl">Citizen Uploads Photo</div></div>
+      <div class="wf-step done"><div class="wf-num">✓</div><div class="wf-lbl">AI Detects Waste</div></div>
+      <div class="wf-step done"><div class="wf-num">✓</div><div class="wf-lbl">GPS Log + Map Pin</div></div>
+      <div class="wf-step active"><div class="wf-num">4</div><div class="wf-lbl">Municipality Assigns Team</div></div>
+      <div class="wf-step"><div class="wf-num">5</div><div class="wf-lbl">Team Cleans Area</div></div>
+      <div class="wf-step"><div class="wf-num">6</div><div class="wf-lbl">Marked Green on Map</div></div>
+    </div>
+
+    <div class="grid-4 mb-4">
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-amber">⏳</div></div><div class="stat-value">87</div><div class="stat-label">Pending<span class="stat-label-ta">நிலுவை</span></div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-blue">🚛</div></div><div class="stat-value">38</div><div class="stat-label">Trucks Active<span class="stat-label-ta">வண்டிகள்</span></div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-green">👥</div></div><div class="stat-value">12</div><div class="stat-label">Teams Active<span class="stat-label-ta">குழுக்கள்</span></div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon-box si-purple">📊</div></div><div class="stat-value">67</div><div class="stat-label">Clean Index<span class="stat-label-ta">சுத்த குறியீடு</span></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">🎯 Assign Cleaning Task <span class="card-title-ta">பணி ஒதுக்குக</span></span></div>
+        <div class="card-body">
+          <div class="form-row">
+            <label class="label">Select Complaint</label>
+            <select class="select"><option>CM-2847 · Anna Nagar 4th St · HIGH PRIORITY</option><option>CM-2845 · KK Nagar Park · MEDIUM</option><option>CM-2843 · Bye-Pass Rd · HIGH PRIORITY</option></select>
+          </div>
+          <div class="form-row">
+            <label class="label">Assign to Team</label>
+            <select class="select"><option>Team Alpha (5 workers) · Zone North</option><option>Team Beta (4 workers) · Zone South</option><option>Team Gamma (6 workers) · Zone West</option></select>
+          </div>
+          <div class="form-row">
+            <label class="label">Priority Override</label>
+            <select class="select"><option>🔴 High — Respond within 2 hours</option><option selected>🟡 Medium — Respond within 6 hours</option><option>🟢 Low — Respond within 24 hours</option></select>
+          </div>
+          <div class="form-row">
+            <label class="label">Notes for Team</label>
+            <textarea class="textarea" style="min-height:64px">Bring extra manpower. Large volume reported by AI system.</textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="toast('✅','Task assigned to Team Alpha. SMS sent.')">📤 Assign Task</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card mb-4">
+          <div class="card-head"><span class="card-title">📈 Waste by Type <span class="card-title-ta">கழிவு வகைகள்</span></span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="text-xs text-slate6">🔵 Plastic</span><span class="text-xs fw-7">38%</span></div><div class="progress"><div class="progress-fill pf-blue" style="width:38%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="text-xs text-slate6">🟢 Organic</span><span class="text-xs fw-7">28%</span></div><div class="progress"><div class="progress-fill pf-green" style="width:28%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="text-xs text-slate6">⚫ Mixed</span><span class="text-xs fw-7">22%</span></div><div class="progress"><div class="progress-fill pf-amber" style="width:22%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="text-xs text-slate6">🟤 Construction</span><span class="text-xs fw-7">12%</span></div><div class="progress"><div class="progress-fill pf-red" style="width:12%"></div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">🏙 Ward Action Required</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#fef2f2;border-radius:var(--radius);border:1px solid #fecaca">
+              <span class="text-sm fw-7 text-red">Ward 18</span>
+              <span class="flex-1 text-xs text-slate5">Bye-Pass Road</span>
+              <span class="badge b-red">CRITICAL</span>
+              <button class="btn btn-danger btn-sm" onclick="toast('🚨','Emergency team dispatched to Ward 18')">Dispatch</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#fffbeb;border-radius:var(--radius);border:1px solid #fde68a">
+              <span class="text-sm fw-7 text-amber">Ward 7</span>
+              <span class="flex-1 text-xs text-slate5">Anna Nagar</span>
+              <span class="badge b-amber">HIGH</span>
+              <button class="btn btn-outline btn-sm" onclick="toast('📋','Ward 7 task assigned')">Assign</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--g50);border-radius:var(--radius);border:1px solid var(--g200)">
+              <span class="text-sm fw-7 text-green">Ward 3</span>
+              <span class="flex-1 text-xs text-slate5">Goripalayam</span>
+              <span class="badge b-green">CLEAN</span>
+              <button class="btn btn-outline btn-sm" onclick="toast('✅','Ward 3 verified clean')">Verify</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── INIT ────────────────────────────────────────
+window.addEventListener('load',()=>{
+  setTimeout(()=>{document.getElementById('loader').classList.add('out');boot()},1400)
+})
+
+function boot(){
+  tick();setInterval(tick,1000)
+  renderTrucks();renderWards();renderComplaints();renderLb()
+  setInterval(liveAct,5000)
+}
+
+// ── CLOCK ───────────────────────────────────────
+function tick(){
+  const el=document.getElementById('clk')
+  const mt=document.getElementById('map-time')
+  const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+  if(el)el.textContent=t
+  if(mt)mt.textContent=t
+}
+
+// ── NAV ─────────────────────────────────────────
+const titles={
+  dashboard:{en:'Dashboard',ta:'டாஷ்போர்டு'},
+  report:{en:'Report Garbage',ta:'குப்பை புகார்'},
+  map:{en:'Waste Hotspot Map',ta:'கழிவு வரைபடம்'},
+  trucks:{en:'Truck Tracker',ta:'வண்டி கண்காணிப்பு'},
+  wards:{en:'Ward Rankings',ta:'வார்டு தரவரிசை'},
+  complaints:{en:'Complaints',ta:'புகார்கள்'},
+  segregation:{en:'Segregation Guide',ta:'பிரிக்கும் வழிகாட்டி'},
+  rewards:{en:'Rewards & Leaderboard',ta:'விருதுகளும் தரவரிசையும்'},
+  admin:{en:'Admin Dashboard',ta:'நிர்வாக டாஷ்போர்டு'}
+}
+
+function go(id,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'))
+  const s=document.getElementById('s-'+id)
+  if(s)s.classList.add('on')
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'))
+  if(el)el.classList.add('active')
+  else{
+    document.querySelectorAll('.nav-link').forEach(n=>{
+      if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'"))n.classList.add('active')
+    })
+  }
+  const t=titles[id]||{en:id,ta:id}
+  document.getElementById('page-title').innerHTML=t.en+'<span id="page-ta">'+t.ta+'</span>'
+}
+
+// ── LANG ────────────────────────────────────────
+function setLang(l,btn){
+  document.querySelectorAll('.lang-opt').forEach(b=>b.classList.remove('on'))
+  btn.classList.add('on')
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    el.textContent=l==='ta'?el.getAttribute('data-ta'):el.getAttribute('data-en')
+  })
+  toast('🌐',l==='ta'?'தமிழ் மொழி தேர்ந்தெடுக்கப்பட்டது':'Language set to English')
+}
+
+// ── ROLE ────────────────────────────────────────
+const roles={
+  citizen:{name:'Rajan Kumar',role:'Citizen · Ward 12',av:'RK',bg:'linear-gradient(135deg,#22c55e,#15803d)'},
+  official:{name:'Murugan IAS',role:'Municipal Commissioner',av:'MU',bg:'linear-gradient(135deg,#3b82f6,#1d4ed8)'},
+  worker:{name:'Selvam Kumar',role:'Sanitation Worker · Team B',av:'SK',bg:'linear-gradient(135deg,#f97316,#c2410c)'},
+}
+function setRole(r,btn){
+  document.querySelectorAll('.role-tab').forEach(b=>b.classList.remove('on'))
+  btn.classList.add('on')
+  const d=roles[r]
+  document.getElementById('uname').textContent=d.name
+  document.getElementById('urole').textContent=d.role
+  document.getElementById('uav').textContent=d.av
+  document.getElementById('uav').style.background=d.bg
+  toast('👤','Switched to '+d.name+' ('+r+')')
+}
+
+// ── AI UPLOAD ───────────────────────────────────
+function handleImg(e){
+  const f=e.target.files[0];if(!f)return
+  const r=new FileReader()
+  r.onload=ev=>{
+    document.getElementById('up').style.display='block'
+    document.getElementById('pi').src=ev.target.result
+    runAI()
+  }
+  r.readAsDataURL(f)
+}
+function runAI(){
+  const box=document.getElementById('aib');box.style.display='block'
+  document.getElementById('a-type').textContent='Analyzing…'
+  document.getElementById('a-prio').textContent='…'
+  document.getElementById('a-vol').textContent='…'
+  document.getElementById('a-bar').style.width='0%'
+  document.getElementById('a-pct').textContent='0%'
+  const types=['Plastic Waste','Organic Waste','Mixed Waste','Construction Debris']
+  const prios=[{t:'🔴 HIGH',c:'color:var(--red)'},{t:'🟡 MEDIUM',c:'color:#d97706'},{t:'🟢 LOW',c:'color:var(--g600)'}]
+  const vols=['Small (<10 kg)','Medium (10–50 kg)','Large (>50 kg)']
+  setTimeout(()=>{
+    const typ=types[Math.floor(Math.random()*types.length)]
+    const pr=prios[Math.floor(Math.random()*prios.length)]
+    const vl=vols[Math.floor(Math.random()*vols.length)]
+    const conf=78+Math.floor(Math.random()*19)
+    document.getElementById('a-type').textContent=typ
+    const pe=document.getElementById('a-prio')
+    pe.textContent=pr.t;pe.setAttribute('style',pr.c+';font-weight:700')
+    document.getElementById('a-vol').textContent=vl
+    document.getElementById('a-bar').style.width=conf+'%'
+    document.getElementById('a-pct').textContent=conf+'%'
+    toast('🤖','AI Analysis: '+typ+' detected ('+conf+'% confidence)')
+  },1800)
+}
+function submitReport(){
+  toast('✅','Complaint CM-2851 submitted! +10 points earned 🌟')
+  setTimeout(()=>go('map',null),2000)
+}
+
+// ── TRUCKS ──────────────────────────────────────
+const trucks=[
+  {id:'TN58AQ1234',route:'Anna Nagar → KK Nagar',status:'On Route',eta:'8:45 AM',pct:62,sc:'text-green'},
+  {id:'TN58BK5678',route:'Tallakulam → Goripalayam',status:'On Route',eta:'9:10 AM',pct:38,sc:'text-green'},
+  {id:'TN58CR9012',route:'Bye-Pass → Palanganatham',status:'Loading',eta:'10:20 AM',pct:15,sc:'text-amber'},
+  {id:'TN58DX3456',route:'Ellis Nagar → Teppakulam',status:'On Route',eta:'9:45 AM',pct:55,sc:'text-green'},
+  {id:'TN58EY7890',route:'Villapuram → Sellur',status:'Completed',eta:'Done ✅',pct:100,sc:'text-slate4'},
+]
+function renderTrucks(){
+  const el=document.getElementById('truckList');if(!el)return
+  el.innerHTML=trucks.map(t=>`
+    <div class="truck-row">
+      <div class="truck-emoji">🚛</div>
+      <div class="truck-inf">
+        <div class="truck-id">${t.id}</div>
+        <div class="truck-route">${t.route}</div>
+        <div class="progress" style="margin-top:4px;height:4px"><div class="progress-fill pf-green" style="width:${t.pct}%"></div></div>
+      </div>
+      <div class="truck-r">
+        <div class="truck-eta">${t.eta}</div>
+        <div class="truck-stat ${t.sc}">${t.status}</div>
+      </div>
+    </div>`).join('')
+}
+
+// ── WARDS ───────────────────────────────────────
+const wards=[
+  {n:3,name:'Goripalayam',sc:98,cl:'ex',lbl:'Excellent'},
+  {n:5,name:'Tallakulam',sc:94,cl:'ex',lbl:'Excellent'},
+  {n:8,name:'Anna Nagar',sc:91,cl:'ex',lbl:'Excellent'},
+  {n:11,name:'Simmakkal',sc:88,cl:'gd',lbl:'Good'},
+  {n:12,name:'KK Nagar',sc:82,cl:'gd',lbl:'Good'},
+  {n:2,name:'Villapuram',sc:79,cl:'gd',lbl:'Good'},
+  {n:15,name:'Sellur',sc:72,cl:'av',lbl:'Average'},
+  {n:19,name:'Teppakulam',sc:68,cl:'av',lbl:'Average'},
+  {n:22,name:'Palanganatham',sc:61,cl:'av',lbl:'Average'},
+  {n:7,name:'Ellis Nagar',sc:54,cl:'pr',lbl:'Poor'},
+  {n:17,name:'Naidupuram',sc:47,cl:'pr',lbl:'Poor'},
+  {n:18,name:'Bye-Pass Rd',sc:32,cl:'cr',lbl:'Critical'},
+]
+const wc={ex:'#22c55e',gd:'#34d399',av:'#f59e0b',pr:'#f97316',cr:'#ef4444'}
+const bmap={ex:'b-green',gd:'b-green',av:'b-amber',pr:'b-orange',cr:'b-red'}
+function renderWards(){
+  const el=document.getElementById('wardGrid');if(!el)return
+  el.innerHTML=wards.map((w,i)=>`
+    <div class="ward-card wc-${w.cl}" onclick="toast('📊','Ward ${w.n} · ${w.name}: ${w.lbl} (${w.sc}/100)')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="ward-num">WARD ${w.n}</div>
+          <div class="ward-name">${w.name}</div>
+        </div>
+        <span class="badge ${bmap[w.cl]}" style="font-size:.58rem">#${i+1}</span>
+      </div>
+      <div class="ward-score ws-${w.cl}">${w.sc}</div>
+      <div class="progress" style="height:4px"><div class="progress-fill" style="width:${w.sc}%;background:${wc[w.cl]}"></div></div>
+      <div class="text-2xs text-slate4" style="margin-top:4px">${w.lbl}</div>
+    </div>`).join('')
+}
+
+// ── COMPLAINTS ──────────────────────────────────
+const complaints=[
+  {id:'CM-2851',loc:'KK Nagar Park',type:'Plastic',prio:'HIGH',by:'Rajan K.',time:'8:20 AM',status:'Pending'},
+  {id:'CM-2850',loc:'Anna Nagar 4th St',type:'Mixed',prio:'HIGH',by:'Priya S.',time:'8:05 AM',status:'In Progress'},
+  {id:'CM-2849',loc:'Tallakulam Market',type:'Organic',prio:'MEDIUM',by:'Kumar M.',time:'7:50 AM',status:'In Progress'},
+  {id:'CM-2848',loc:'Goripalayam Stop',type:'Plastic',prio:'LOW',by:'Rani D.',time:'7:30 AM',status:'Resolved'},
+  {id:'CM-2847',loc:'Bye-Pass Road',type:'Constr.',prio:'HIGH',by:'Anbu R.',time:'7:15 AM',status:'Pending'},
+  {id:'CM-2846',loc:'Ellis Nagar Circle',type:'Mixed',prio:'MEDIUM',by:'Selvam P.',time:'6:55 AM',status:'Resolved'},
+  {id:'CM-2845',loc:'Sellur Canal Rd',type:'Organic',prio:'HIGH',by:'Meena L.',time:'6:40 AM',status:'In Progress'},
+]
+const sm={Pending:'b-amber',['In Progress']:'b-blue',Resolved:'b-green'}
+const pm={HIGH:'b-red',MEDIUM:'b-amber',LOW:'b-green'}
+function renderComplaints(){
+  const el=document.getElementById('cBody');if(!el)return
+  el.innerHTML=complaints.map(c=>`<tr>
+    <td><span class="mono text-xs text-slate4">${c.id}</span></td>
+    <td><b>${c.loc}</b></td>
+    <td><span class="badge b-slate">${c.type}</span></td>
+    <td><span class="badge ${pm[c.prio]}">${c.prio}</span></td>
+    <td class="text-sm">${c.by}</td>
+    <td class="text-xs text-slate4">${c.time}</td>
+    <td><span class="badge ${sm[c.status]}">${c.status}</span></td>
+    <td>${c.status==='Pending'?`<button class="btn btn-primary btn-sm" onclick="toast('✅','${c.id} assigned')">Assign</button>`:
+        c.status==='In Progress'?`<button class="btn btn-outline btn-sm" onclick="toast('✅','${c.id} resolved')">Resolve</button>`:
+        `<button class="btn btn-outline btn-sm" onclick="toast('📋','Viewing ${c.id}')">View</button>`}
+    </td></tr>`).join('')
+}
+
+// ── LEADERBOARD ─────────────────────────────────
+const lb=[
+  {rank:1,name:'Priya Sundari',ward:'Ward 5 · Tallakulam',pts:1240,bg:'#ef4444',av:'PS'},
+  {rank:2,name:'Kumar Murugan',ward:'Ward 3 · Goripalayam',pts:1180,bg:'#3b82f6',av:'KM'},
+  {rank:3,name:'Rani Devi',ward:'Ward 8 · Anna Nagar',pts:1050,bg:'#22c55e',av:'RD'},
+  {rank:4,name:'Rajan Kumar',ward:'Ward 12 · KK Nagar',pts:840,bg:'#f97316',av:'RK',me:true},
+  {rank:5,name:'Selvam Pandian',ward:'Ward 11 · Simmakkal',pts:720,bg:'#8b5cf6',av:'SP'},
+  {rank:6,name:'Anbu Raja',ward:'Ward 7 · Ellis Nagar',pts:610,bg:'#06b6d4',av:'AR'},
+  {rank:7,name:'Meena Lakshmi',ward:'Ward 15 · Sellur',pts:590,bg:'#ec4899',av:'ML'},
+]
+const rm=['gold','silver','bronze','','','','']
+function renderLb(){
+  const el=document.getElementById('lb');if(!el)return
+  el.innerHTML=lb.map((u,i)=>`
+    <div class="lb-item${u.me?' me':''}">
+      <div class="lb-rank ${rm[i]}">${i<3?['🥇','🥈','🥉'][i]:u.rank}</div>
+      <div class="lb-av" style="background:${u.bg}">${u.av}</div>
+      <div class="lb-info">
+        <div class="lb-name">${u.name}${u.me?' <span style="font-size:.62rem;color:var(--g600)">(You)</span>':''}</div>
+        <div class="lb-ward">${u.ward}</div>
+      </div>
+      <div class="lb-pts">${u.pts.toLocaleString()} pts</div>
+    </div>`).join('')
+}
+
+// ── LIVE ACTIVITY TICKER ─────────────────────────
+const msgs=[
+  {col:'var(--red)',txt:'🚨 New high priority report at <b>Teppakulam Circle</b>',ward:'Ward 19'},
+  {col:'var(--g500)',txt:'✅ Area cleaned — <b>Simmakkal Bus Stand</b>',ward:'Ward 11'},
+  {col:'var(--orange)',txt:'🤖 AI: Mixed waste at <b>Naidupuram Main Road</b>',ward:'Ward 17'},
+  {col:'var(--blue)',txt:'🚛 Truck TN58EY arrived at <b>Villapuram Zone</b>',ward:'Ward 2'},
+  {col:'#d97706',txt:'🏆 <b>Kumar Murugan</b> earned Madurai Guardian badge',ward:'Ward 3'},
+]
+let mi=0
+function liveAct(){
+  const feed=document.getElementById('act-feed');if(!feed)return
+  const m=msgs[mi%msgs.length];mi++
+  const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+  const div=document.createElement('div')
+  div.className='act-item'
+  div.style.cssText='opacity:0;transition:opacity .4s'
+  div.innerHTML=`<div class="act-dot" style="background:${m.col}"></div><div><div class="act-text">${m.txt}</div><div class="act-time">Just now · ${m.ward}</div></div>`
+  feed.insertBefore(div,feed.firstChild)
+  setTimeout(()=>div.style.opacity='1',50)
+  const items=feed.querySelectorAll('.act-item')
+  if(items.length>5)items[items.length-1].remove()
+}
+
+// ── TOAST ────────────────────────────────────────
+let tt
+function toast(icon,msg){
+  document.getElementById('ti').textContent=icon+' '
+  document.getElementById('tm').textContent=msg
+  const t=document.getElementById('toast')
+  t.classList.add('on')
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3500)
+}
+
+// ── MODAL ────────────────────────────────────────
+function om(html){document.getElementById('mc').innerHTML=html;document.getElementById('mb').classList.add('on')}
+function cm(){document.getElementById('mb').classList.remove('on')}
+document.getElementById('mb').addEventListener('click',e=>{if(e.target===e.currentTarget)cm()})
+</script>
+</body>
+</html>
